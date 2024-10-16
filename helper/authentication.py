@@ -1,35 +1,36 @@
 import sqlite3
 import hashlib
-import pandas as pd
 import os
+from dotenv import load_dotenv
 
-# Function to authenticate employee using email and password
-def authenticate_employee(email, password):
-    # Connect to the database
-    # conn = sqlite3.connect("employee_data.db")
-    database_path = os.path.abspath('../database/employee_data.db')
-    conn = sqlite3.connect(database_path)
-    cursor = conn.cursor()
 
-    # Hash the input password
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
+# Load the Key token
+_ = load_dotenv(override=True)
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-    # Query to find the employee with matching email and password hash
-    cursor.execute(
-        "SELECT * FROM employees WHERE email=? AND password_hash=?",
-        (email, password_hash),
-    )
-    employee = cursor.fetchone()
-    
-    query = f"SELECT * FROM employees WHERE email = '{email}' AND password_hash = '{password_hash}'"
+def authenticate_user(email, password):
+    conn = sqlite3.connect('database/company.db')
+    cur = conn.cursor()
 
-    df = pd.read_sql(query, conn)
+    # Retrieve the password hash and salt for the given email
+    cur.execute('''
+        SELECT password_hash, salt, auth.employee_id FROM auth
+        JOIN employees ON auth.employee_id = employees.employee_id
+        WHERE email = ?
+    ''', (email,))
+    result = cur.fetchone()
 
-    conn.close()
+    if result is None:
+        return None, "User not found"
 
-    if employee:
-        print(f"Authentication successful for: {employee[1]} {employee[2]}")
-        return df.to_dict('records')
+    stored_hash, salt, employee_id = result
+
+    # Hash the provided password with the stored salt
+    hashed_password = hashlib.sha256((password + salt).encode()).hexdigest()
+
+    # Check if the provided password is correct
+    if hashed_password == stored_hash:
+        return employee_id, "Authenticated"
     else:
-        print("Authentication failed!")
-        return None
+        return None, "Invalid password"
+

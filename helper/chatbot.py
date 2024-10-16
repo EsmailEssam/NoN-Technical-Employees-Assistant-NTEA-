@@ -1,32 +1,31 @@
-from authentication import authenticate_employee
-from llm import query_llm, query_llm_mock
-
-# Example of using this function in chatbot interaction
-def chatbot_interaction_with_llm(email, password, query):
-    # Authenticate the employee
-    employee_df = authenticate_employee(email, password)
-
-    if len(employee_df):
-        # Query the LLM with the employee's information and query
-        response = query_llm(employee_df, query)
-        print(f"Chatbot Response: {response}")
-    else:
-        print("Authentication failed. Please try again.")
+from authentication import authenticate_user
+from llm import generate_chat_response, get_client_data
 
 
-# Use the mock LLM function in chatbot interaction
-def chatbot_interaction_with_mock_llm(email, password, query):
-    # Authenticate the employee
-    employee = authenticate_employee(email, password)
+def chat_with_llm(email, password):
+    # Step 1: Authenticate the user
+    employee_id, status = authenticate_user(email, password)
+    if not employee_id:
+        print(status)
+        return
     
-    if len(employee):
-        # Query the mock LLM with the employee's information and query
-        response = query_llm_mock(employee, query)
-        print(f"Chatbot Response: {response}")
-    else:
-        print("Authentication failed. Please try again.")
+    # Step 2: Retrieve client data
+    client_data = get_client_data(employee_id)
+    
+    # Step 3: Begin chatting with the LLM
+    print(f"Welcome, {client_data['first_name']} {client_data['last_name']}!\n")
+    
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() in ['exit', 'quit']:
+            break
+        
+        # Step 4: Generate LLM response using the client data and user input
+        response = generate_chat_response(client_data, user_input)
+        print(f"AI: {response}\n")
 
-
-chatbot_interaction_with_llm(email="xperry@gmail.com",
-                                password="password123",
-                                query="مرتبي كام؟")
+# # Example usage:
+# email = input("Email: ")
+# password = input("Password: ")
+# chat_with_llm(email, password)
+chat_with_llm('monica00@example.net', '123')

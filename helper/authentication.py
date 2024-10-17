@@ -1,35 +1,48 @@
-import os
 import sqlite3
 import hashlib
-import pandas as pd
 
 
 # Function to authenticate employee using email and password
 def authenticate_employee(email, password):
     
     # Get database path
-    DTABASE_PATH = 'database/employee_data.db'
+    DTABASE_PATH = 'database/company.db'
     
     # Connect to the database
     conn = sqlite3.connect(DTABASE_PATH)
     cursor = conn.cursor()
 
-    # Hash the input password
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    # Retrieve the password hash and salt for the given email
+    cursor.execute('''
+        SELECT password_hash, salt, auth.employee_id FROM auth
+        JOIN employees ON auth.employee_id = employees.employee_id
+        WHERE email = ?
+    ''', (email,))
+    result = cursor.fetchone()
 
-    # Query to find the employee with matching email and password hash
-    cursor.execute(
-        "SELECT * FROM employees WHERE email=? AND password_hash=?",
-        (email, password_hash),
-    )
+    if result is None:
+        return None, "User not found"
+
+    stored_hash, salt, employee_id = result
+
+    # Hash the provided password with the stored salt
+    hashed_password = hashlib.sha256((password + salt).encode()).hexdigest()
     
-    # Fetch one employee from the result
-    employee = cursor.fetchone()
-
     # Close the connecion with the database
     conn.close()
 
-    # Check if there any user retrieved
-    if employee:
-        return True
-    return False
+    # Check if the provided password is correct
+    if hashed_password == stored_hash:
+        return employee_id, "Authenticated"
+    else:
+        return None, "Invalid password"
+
+
+# # Example usage:
+# email = 'monica00@example.net', 
+# password = '123'
+# print(authenticate_employee(email, password))
+
+# id, state = authenticate_employee(email, password)
+
+# print(id, state)

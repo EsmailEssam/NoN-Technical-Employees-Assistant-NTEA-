@@ -1,2 +1,7 @@
+Faker==30.6.0
+fastapi==0.115.2
+openai==1.51.2
+pandas==2.0.3
+python-dotenv==1.0.1
 sqlite3
 hashlib

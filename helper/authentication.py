@@ -1,14 +1,17 @@
+import os
 import sqlite3
 import hashlib
 import pandas as pd
-import os
+
 
 # Function to authenticate employee using email and password
 def authenticate_employee(email, password):
+    
+    # Get database path
+    DTABASE_PATH = 'database/employee_data.db'
+    
     # Connect to the database
-    # conn = sqlite3.connect("employee_data.db")
-    database_path = os.path.abspath('../database/employee_data.db')
-    conn = sqlite3.connect(database_path)
+    conn = sqlite3.connect(DTABASE_PATH)
     cursor = conn.cursor()
 
     # Hash the input password
@@ -19,17 +22,14 @@ def authenticate_employee(email, password):
         "SELECT * FROM employees WHERE email=? AND password_hash=?",
         (email, password_hash),
     )
-    employee = cursor.fetchone()
     
-    query = f"SELECT * FROM employees WHERE email = '{email}' AND password_hash = '{password_hash}'"
+    # Fetch one employee from the result
+    employee = cursor.fetchone()
 
-    df = pd.read_sql(query, conn)
-
+    # Close the connecion with the database
     conn.close()
 
+    # Check if there any user retrieved
     if employee:
-        print(f"Authentication successful for: {employee[1]} {employee[2]}")
-        return df.to_dict('records')
-    else:
-        print("Authentication failed!")
-        return None
+        return True
+    return False

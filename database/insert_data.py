@@ -34,12 +34,34 @@ def insert_fake_employees(num_employees=1000):
         # Add generated employee data to the list
         employees.append((first_name, last_name, email, phone_number, department_id, position_id, hire_date, status))
     
-    # Insert all generated employee data into the database
+    # Insertsalaries data into the database
     cur.executemany('''
         INSERT OR IGNORE INTO employees (first_name, last_name, email, phone_number, department_id, position_id, hire_date, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     ''', employees)
-
+    
+    salaries=[1,50500,6000,"USD"]
+    
+    cur.executemany('''
+        INSERT OR IGNORE INTO salaries (employee_id, base_salary,bonus,currency)
+        VALUES (?, ?, ?, ?);
+    ''', salaries)
+    
+    leaves=[1,21,15]
+    
+    cur.executemany('''
+        INSERT OR IGNORE INTO leaves (employee_id, annual_leave_balance,sick_leave_balance)
+        VALUES (?, ?, ?);
+    ''', leaves)
+    
+    performance=[1,4.5]
+    
+    cur.executemany('''
+        INSERT OR IGNORE INTO performance (employee_id, rating)
+        VALUES (?, ?);
+    ''', performance)
+    
+    
     conn.commit()
 
 # Function to insert example departments and positions into their respective tables

@@ -40,26 +40,24 @@ def insert_fake_employees(num_employees=1000):
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     ''', employees)
     
-    salaries=[1,50500,6000,"USD"]
-    
-    cur.executemany('''
-        INSERT OR IGNORE INTO salaries (employee_id, base_salary,bonus,currency)
-        VALUES (?, ?, ?, ?);
-    ''', salaries)
-    
-    leaves=[1,21,15]
     
     cur.executemany('''
         INSERT OR IGNORE INTO leaves (employee_id, annual_leave_balance,sick_leave_balance)
         VALUES (?, ?, ?);
-    ''', leaves)
+    ''', [[1,21,15]])
     
-    performance=[1,4.5]
     
     cur.executemany('''
         INSERT OR IGNORE INTO performance (employee_id, rating)
         VALUES (?, ?);
-    ''', performance)
+    ''', [[1,4.5]])
+    
+
+    
+    cur.executemany('''
+        INSERT OR IGNORE INTO salaries (employee_id, base_salary,bonus,currency)
+        VALUES (?, ?, ?, ?);
+    ''', [[1,50500.0,6000.5,'USD']])
     
     
     conn.commit()

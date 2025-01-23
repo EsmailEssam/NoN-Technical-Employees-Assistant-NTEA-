@@ -6,4 +6,3 @@ httpx==0.27.0
 pytest
 langchain_google_genai==2.0.9
 faiss-cpu
-pickle

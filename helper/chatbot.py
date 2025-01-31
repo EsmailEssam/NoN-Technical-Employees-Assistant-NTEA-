@@ -9,8 +9,15 @@ from langdetect import detect
 from googletrans import Translator
 
 
+def translate_to_english(text):
+    translator = Translator()
+    if detect(text) == 'en':
+        return text  # Already in English
+    return translator.translate(text, dest='en').text
+
+
 def search_vdb(user_input:str):
-    
+    user_input=translate_to_english(user_input)
     index_path = os.path.join(os.getcwd(), 'faiss_data.pkl')
     
     with open(index_path, "rb") as f:
@@ -30,22 +37,11 @@ def search_vdb(user_input:str):
     return text
 
 
-
-
-translator = Translator()
-
-def translate_to_english(text):
-    if detect(text) == 'en':
-        return text  # Already in English
-    return translator.translate(text, dest='en').text
-
 # Function to integrate LLM like GPT
 def query_llm(client_data=None, guest_mode=None):
     
     # Get user input
     user_input = st.chat_input("What is your question?")
-    user_input = translate_to_english(user_input)
-
     
     if user_input:
         context = search_vdb(user_input)

@@ -6,14 +6,12 @@ import os
 import pickle
 import numpy as np
 from langdetect import detect
-from googletrans import Translator
-
+from deep_translator import GoogleTranslator
 
 def translate_to_english(text):
-    translator = Translator()
     if detect(text) == 'en':
         return text  # Already in English
-    return translator.translate(text, dest='en').text
+    return GoogleTranslator(source='ar', target='en').translate(text)
 
 
 def search_vdb(user_input:str):

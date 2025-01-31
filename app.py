@@ -15,7 +15,7 @@ def chat_interface(user_data=None, guest_mode=None):
     query_llm(user_data, guest_mode=guest_mode)
 
 def main():
-    st.title("NTEA Chatbot")
+    st.title("Employees Assistant")
 
     # Check if user is logged in or accessing as guest
     if 'logged_in' not in st.session_state:
